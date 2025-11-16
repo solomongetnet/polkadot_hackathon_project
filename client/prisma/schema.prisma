@@ -1,0 +1,451 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String        @id
+  name          String
+  username      String?       @unique
+  email         String
+  emailVerified Boolean
+  image         String?
+  sessions      Session[]
+  accounts      Account[]
+  role          Role          @default(USER)
+  chats         Chat[]
+  folder        Folder[]
+  messageLikes  MessageLike[]
+  status        UserStatus    @default(ACTIVE)
+
+  characters     Character[]
+  characterLikes CharacterLike[]
+
+  // Users this user follows
+  following Follow[] @relation("UserFollowing")
+
+  // Users that follow this user
+  followers Follow[]   @relation("UserFollowers")
+  payments  Payment[]
+  userPlans UserPlan[]
+
+  characterReports CharacterReport[]
+
+  notification       Notification[]
+  actorNotifications Notification[] @relation("ActorNotifications")
+
+  characterComments      CharacterComment[]
+  likedCharacterComments CharacterCommentLike[]
+
+  // --- Wallet Integration ---
+  walletAddress String? @unique // Blockchain wallet (Metamask, etc.)
+  walletNetwork String? // E.g., "Polkadot", "Moonbeam", "Ethereum"
+
+  createdAt DateTime
+  updatedAt DateTime
+}
+
+model Payment {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  transactionRef String        @unique
+  transactionId  String?
+  amount         Float         @default(0)
+  currency       String
+  status         PaymentStatus @default(PENDING)
+  phoneNumber    String?
+
+  userPlan UserPlan? // One payment is tied to one UserPlan
+
+  planToUpgrade   Plan   @relation(fields: [planIdToUpgrade], references: [id], onDelete: Cascade)
+  planIdToUpgrade String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([transactionRef, userId])
+}
+
+model UserPlan {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  planId String
+  plan   Plan   @relation(fields: [planId], references: [id])
+
+  paymentId String?  @unique // 👈 Add this
+  payment   Payment? @relation(fields: [paymentId], references: [id])
+
+  status    UserPlanStatus @default(ACTIVE)
+  startDate DateTime       @default(now())
+  endDate   DateTime
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Plan {
+  id              String          @id @default(cuid())
+  name            PlanName        @unique @default(FREE)
+  description     String?
+  priceCents      Int // price in smallest currency unit (e.g. cents)
+  currency        String          @default("ETB")
+  billingInterval BillingInterval @default(MONTHLY)
+  isActive        Boolean         @default(true)
+
+  userPlans UserPlan[]
+  payments  Payment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Follow {
+  followerId  String
+  followingId String
+
+  follower  User @relation("UserFollowing", fields: [followerId], references: [id], onDelete: Cascade)
+  following User @relation("UserFollowers", fields: [followingId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@id([followerId, followingId])
+  @@index([followingId])
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  createdAt DateTime
+  updatedAt DateTime
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([token])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?   @db.Text
+  refreshToken          String?   @db.Text
+  idToken               String?   @db.Text
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime
+  updatedAt             DateTime
+
+  @@map("account")
+}
+
+model Verification {
+  id         String    @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime?
+  updatedAt  DateTime?
+
+  @@map("verification")
+}
+
+model Folder {
+  id        String   @id @default(cuid())
+  title     String
+  chats     Chat[]   @relation("ChatsOnFolders")
+  theme     String   @db.Text
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("folder")
+}
+
+model Chat {
+  id     String  @id @default(cuid())
+  title  String
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  customBackgroundUrl String?
+
+  guestId  String?
+  folders  Folder[]  @relation("ChatsOnFolders")
+  messages Message[]
+
+  characterId String
+  character   Character @relation(fields: [characterId], references: [id], onDelete: NoAction)
+
+  pinned   Boolean   @default(false)
+  pinnedAt DateTime? // optional, only set when pinned
+
+  backgroundUrl String? //for paid users if they don't need character theme
+  themeId       String? //for paid users if they don't need character theme
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("chat")
+}
+
+model Character {
+  id   String @id @default(cuid())
+  name String // Character's display name
+
+  avatarUrl     String? // Optional image/avatar
+  backgroundUrl String?
+  themeId       String? // those themes are static from the constant file
+
+  description String              @db.Text // Brief bio or introduction
+  tagline     String // Add a short tagline of your Character
+  personality String              @db.Text // Personality description (e.g., "cheerful, logical, sarcastic")
+  prompt      String              @db.Text // System prompt to define character's behavior
+  voiceStyle  String? // Optional voice tone (e.g., "friendly", "robotic", "formal")
+  visibility  CharacterVisibility @default(PUBLIC)
+
+  creatorId String
+  creator   User   @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+
+  chats Chat[] // 👈 One-to-many relationship with Chat
+  likes CharacterLike[]
+
+  messages Message[]
+
+  tags String?
+
+  comments      CharacterComment[]
+  reports       CharacterReport[]
+  notifications Notification[]
+
+  // NFT integration fields
+  nftTokenId      String? // ID of NFT token on-chain
+  nftContract     String? // Contract address
+  nftNetwork      String? // Blockchain network, e.g., "Polkadot" or "Moonbeam"
+  isListedForSale Boolean @default(false) // Whether the NFT is up for sale
+  price           Float? // Sale price in native token (e.g., DOT, ETH)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+
+// model CharacterBlockchain {
+//   id String @id @default(cuid())
+
+//   // Back relation — no foreign key here
+//   character Character?
+
+//   nftTokenId      String?
+//   contractAddress String?
+//   chain           String?
+//   ipfsMetadataUrl String?
+//   isOnChain       Boolean @default(false)
+
+//   isForSale Boolean @default(false)
+//   price     Float?
+
+//   ownerWallet String?
+
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime @updatedAt
+// }
+
+model CharacterLike {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  characterId String
+  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, characterId])
+  @@map("character_id")
+}
+
+model CharacterComment {
+  id String @id @default(cuid())
+
+  characterId String
+  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  content String                 @db.Text
+  likes   CharacterCommentLike[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([characterId])
+  @@index([userId])
+}
+
+model CharacterCommentLike {
+  id        String           @id @default(cuid())
+  commentId String
+  comment   CharacterComment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([commentId])
+  @@index([userId])
+}
+
+model CharacterReport {
+  id      String       @id @default(cuid())
+  reason  String
+  details String? // optional extra explanation
+  status  ReportStatus @default(PENDING)
+
+  // Relations
+  reporterId String
+  reporter   User   @relation(fields: [reporterId], references: [id])
+
+  characterId String
+  character   Character @relation(fields: [characterId], references: [id])
+
+  createdAt  DateTime  @default(now())
+  reviewedAt DateTime?
+}
+
+model Message {
+  id      String      @id @default(cuid())
+  content String      @db.Text
+  role    MessageRole
+  chatId  String
+  chat    Chat        @relation(fields: [chatId], references: [id], onDelete: Cascade)
+
+  characterId String
+
+  character Character     @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  likes     MessageLike[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("message")
+}
+
+model MessageLike {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messageId String
+  message   Message  @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, messageId])
+  @@map("message_like")
+}
+
+model Notification {
+  id      String           @id @default(cuid())
+  type    NotificationType
+  message String?
+  isRead  Boolean          @default(false)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  actorId String?
+  actor   User?   @relation("ActorNotifications", fields: [actorId], references: [id], onDelete: Cascade)
+
+  characterId String?
+  character   Character? @relation(fields: [characterId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum NotificationType {
+  CHARACTER_LIKE
+  CHARACTER_COMMENT
+  CHARACTER_COMMENT_LIKE
+  USER_FOLLOW
+  SYSTEM
+}
+
+enum UserStatus {
+  ACTIVE // user can fully access the app
+  INACTIVE // user hasn’t used the app for a while
+  SUSPENDED // temporarily restricted
+  BANNED // permanently banned
+  PENDING // waiting for verification or approval
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum CharacterVisibility {
+  PUBLIC
+  PRIVATE
+  REMOVED
+}
+
+enum MessageRole {
+  USER
+  ASSISTANT
+}
+
+/// Enum for billing intervals
+enum BillingInterval {
+  MONTHLY
+  YEARLY
+  WEEKLY
+  DAILY
+}
+
+enum PlanName {
+  FREE
+  PLUS
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  CANCELED
+  FAILED
+  REFUNDED
+}
+
+enum UserPlanStatus {
+  ACTIVE
+  PENDING
+  CANCELLED
+  EXPIRED
+}
+
+enum ReportStatus {
+  PENDING
+  REVIEWED
+  DISMISSED
+}

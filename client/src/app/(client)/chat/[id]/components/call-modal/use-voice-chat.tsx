@@ -1,0 +1,245 @@
+"use client";
+
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useMutation } from "@tanstack/react-query";
+import { respondToCharacterCallAction } from "@/server/actions/call.actions";
+import { generateTTS } from "@/server/actions/tts";
+
+type Status = "calling" | "idle" | "listening" | "responding" | "thinking";
+
+interface Message {
+  role: "USER" | "ASSISTANT";
+  content: string;
+}
+
+interface Options {
+  onError?: (e: Error) => void;
+  silenceTimeoutMs?: number;
+  voiceId: string;
+  characterId: string;
+}
+
+export function useVoiceChat({
+  onError,
+  silenceTimeoutMs = 1000,
+  voiceId,
+  characterId,
+}: Options) {
+  const [status, setStatus] = useState<Status>("idle");
+  const [transcript, setTranscript] = useState("");
+  const [aiResponse, setAiResponse] = useState<string | null>(null);
+  const [soundLevel, setSoundLevel] = useState(0);
+  const [isMuted, setIsMuted] = useState(false);
+  const [messages, setMessages] = useState<Message[]>([]);
+
+  const recogRef = useRef<any>(null);
+  const silenceTimer = useRef<NodeJS.Timeout | null>(null);
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const analyserRef = useRef<AnalyserNode | null>(null);
+  const meterTick = useRef<NodeJS.Timeout | null>(null);
+  const micStreamRef = useRef<MediaStream | null>(null);
+  const started = useRef(false);
+  const currentAudioRef = useRef<HTMLAudioElement | null>(null);
+  const speakTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const respondTocMessageMutation = useMutation({
+    mutationFn: ({ message }: { message: string }) =>
+      respondToCharacterCallAction({ messages, message, characterId }),
+  });
+
+  const playAudioBuffer = (buffer: any) => {
+    const blob = new Blob([buffer], { type: "audio/mpeg" });
+    const url = URL.createObjectURL(blob);
+    const audio = new Audio(url);
+    currentAudioRef.current = audio;
+    audio.play();
+  };
+
+  const cleanupAudio = () => {
+    if (meterTick.current) clearInterval(meterTick.current);
+    if (analyserRef.current) analyserRef.current.disconnect();
+    if (audioCtxRef.current) audioCtxRef.current.close();
+    if (micStreamRef.current) {
+      micStreamRef.current.getTracks().forEach((t) => t.stop());
+    }
+    setSoundLevel(0);
+  };
+
+  const startSoundMeter = async () => {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    micStreamRef.current = stream;
+
+    const ctx = new AudioContext();
+    audioCtxRef.current = ctx;
+
+    const src = ctx.createMediaStreamSource(stream);
+    const analyser = ctx.createAnalyser();
+    analyser.fftSize = 256;
+    src.connect(analyser);
+    analyserRef.current = analyser;
+
+    const data = new Uint8Array(analyser.frequencyBinCount);
+    meterTick.current = setInterval(() => {
+      analyser.getByteFrequencyData(data);
+      setSoundLevel(Math.max(...data) / 255);
+    }, 80);
+  };
+
+  const recognise = useCallback(() => {
+    const SR =
+      (window as any).SpeechRecognition ||
+      (window as any).webkitSpeechRecognition;
+    if (!SR) return onError?.(new Error("Speech Recognition unsupported"));
+
+    const recog = new SR();
+    recogRef.current = recog;
+    recog.lang = "en-US";
+    recog.interimResults = true;
+    recog.continuous = true;
+
+    let fullText = "";
+
+    recog.onresult = (e: any) => {
+      for (let i = e.resultIndex; i < e.results.length; i++) {
+        const result = e.results[i];
+        const phrase = result[0].transcript;
+        if (result.isFinal) {
+          fullText += `${phrase} `;
+          setTranscript("");
+        } else {
+          setTranscript(phrase);
+        }
+      }
+
+      if (silenceTimer.current) clearTimeout(silenceTimer.current);
+      silenceTimer.current = setTimeout(() => recog.stop(), silenceTimeoutMs);
+    };
+
+    recog.onend = async () => {
+      setTranscript("");
+      fullText = fullText.trim();
+      if (!fullText || isMuted) return recognise();
+
+      setStatus("responding");
+      setMessages((prev) => [...prev, { role: "USER", content: fullText }]);
+
+      try {
+        setStatus("thinking");
+        const result = await respondTocMessageMutation.mutateAsync({
+          message: fullText,
+        });
+        setStatus("responding");
+
+        if (!result.success || !result.response) {
+          onError?.(new Error(result.error?.message || "AI response failed"));
+          return setStatus("listening");
+        }
+
+        setMessages((prev) => [
+          ...prev,
+          { role: "ASSISTANT", content: result.response! },
+        ]);
+        setAiResponse(result.response);
+        speak(result.response);
+      } catch (e: any) {
+        onError?.(e);
+        setStatus("listening");
+      }
+    };
+
+    recog.onerror = () => onError?.(new Error("Speech Recognition error"));
+
+    recog.start();
+    setStatus("listening");
+  }, [
+    characterId,
+    isMuted,
+    messages,
+    respondTocMessageMutation,
+    onError,
+    silenceTimeoutMs,
+  ]);
+
+  const speak = async (text: string) => {
+    try {
+      const result = await generateTTS(text, voiceId);
+      if ("error" in result) throw new Error(result.error);
+
+      playAudioBuffer(result);
+
+      speakTimeoutRef.current = setTimeout(() => {
+        setStatus("listening");
+        setAiResponse(null);
+        recognise();
+      }, 2000);
+    } catch (e: any) {
+      onError?.(e);
+      setStatus("listening");
+    }
+  };
+
+  const start = async () => {
+    if (started.current) return;
+    started.current = true;
+
+    try {
+      await startSoundMeter();
+      setStatus("calling");
+      speakTimeoutRef.current = setTimeout(() => recognise(), 2000);
+    } catch {
+      onError?.(new Error("Mic permission denied"));
+    }
+  };
+
+  const end = () => {
+    // Cancel delayed recognition if it's pending
+    if (speakTimeoutRef.current) {
+      clearTimeout(speakTimeoutRef.current);
+      speakTimeoutRef.current = null;
+    }
+
+    if (silenceTimer.current) clearTimeout(silenceTimer.current);
+
+    if (currentAudioRef.current) {
+      currentAudioRef.current.pause();
+      currentAudioRef.current.src = "";
+      currentAudioRef.current = null;
+    }
+
+    if (recogRef.current) {
+      try {
+        recogRef.current.onresult = null;
+        recogRef.current.onend = null;
+        recogRef.current.onerror = null;
+        recogRef.current.abort();
+      } catch {}
+    }
+
+    if (window.speechSynthesis.speaking) window.speechSynthesis.cancel();
+
+    cleanupAudio();
+    setMessages([]);
+    setTranscript("");
+    setAiResponse(null);
+    setStatus("idle");
+    started.current = false;
+  };
+
+  const toggleMute = () => setIsMuted((m) => !m);
+
+  useEffect(() => {
+    return () => end();
+  }, []);
+
+  return {
+    status,
+    transcript,
+    aiResponse,
+    soundLevel,
+    isMuted,
+    toggleMute,
+    start,
+    end,
+    messages,
+  };
+}
