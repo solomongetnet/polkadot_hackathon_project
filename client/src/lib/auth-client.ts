@@ -1,5 +1,5 @@
 // lib/auth-client.ts
-import { createAuthClient } from "better-auth/react";
+import { createAuthClient } from "better-auth/client";
 import {
   inferAdditionalFields,
   customSessionClient,
