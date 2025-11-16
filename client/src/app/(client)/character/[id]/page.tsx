@@ -21,7 +21,7 @@ type Props = {
 };
 
 // Dynamic metadata for SEO + OG image support
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata({ params }: any){
   const id = params.id;
   const data = await getSingleCharacterProfileAction({ characterId: id });
   const character = data?.character;
@@ -54,7 +54,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 // Page
-export default async function CharacterPage({ params }: Props) {
+export default async function CharacterPage({ params }: any) {
   const id = await params.id;
   const data = await getSingleCharacterProfileAction({
     characterId: id,
