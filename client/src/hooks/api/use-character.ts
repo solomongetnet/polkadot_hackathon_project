@@ -131,14 +131,14 @@ export const useCreateCharacterMutation = () => {
       if (success) {
         toast.success(message);
       } else {
-        if (error?.code === "LOGIN_REQUIRED") {
-          showErrorToast({
-            code: error?.code as any,
-            message: error?.message,
-            // loginCallback: "/character/new",
-          });
-          return;
-        }
+        // if (error?.code === "LOGIN_REQUIRED") {
+        //   showErrorToast({
+        //     code: error?.code as any,
+        //     message: error?.message,
+        //     // loginCallback: "/character/new",
+        //   });
+        //   return;
+        // }
         showErrorToast({
           code: error?.code as any,
           message: error?.message,

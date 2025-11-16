@@ -161,23 +161,23 @@ export function FormContainer() {
       handleReset();
     }
 
-    if (error?.code) {
-      if (error?.code === "LOGIN_REQUIRED") {
-        const dataToPersist: PersistedFormData = { ...data };
-        if (selectedAvatarFile) {
-          const imageBase64 = await fileToBase64(selectedAvatarFile);
-          dataToPersist.persistedImage = {
-            base64: imageBase64,
-            name: selectedAvatarFile.name,
-            type: selectedAvatarFile.type,
-          };
-        }
-        sessionStorage.setItem(
-          PERSISTED_FORM_DATA_KEY,
-          JSON.stringify(dataToPersist)
-        );
-      }
-    }
+    // if (error?.code) {
+    //   if (error?.code === "LOGIN_REQUIRED") {
+    //     const dataToPersist: PersistedFormData = { ...data };
+    //     if (selectedAvatarFile) {
+    //       const imageBase64 = await fileToBase64(selectedAvatarFile);
+    //       dataToPersist.persistedImage = {
+    //         base64: imageBase64,
+    //         name: selectedAvatarFile.name,
+    //         type: selectedAvatarFile.type,
+    //       };
+    //     }
+    //     sessionStorage.setItem(
+    //       PERSISTED_FORM_DATA_KEY,
+    //       JSON.stringify(dataToPersist)
+    //     );
+    //   }
+    // }
   };
 
   const handleGenerateCharacterPrompt = async () => {
