@@ -1,22 +1,41 @@
 "use client";
 
-import { useInitPlansMutation } from "@/hooks/api/use-plan";
-import { paidNow } from "@/server/actions/test.actions";
+import React from "react";
 
-export default function PaymentButton() {
-  const mutation = useInitPlansMutation();
+import { ethers } from "ethers";
+import { Button } from "@/components/ui/button";
 
-  const handleClick = async () => {
-    // mutation.mutate();
-    await paidNow();
-  };
+// export async function connectWallet(): Promise<string | null> {
+  // try {
+  //   if (!window.ethereum) {
+  //     alert("MetaMask is not installed!");
+  //     return null;
+  //   }
 
+  //   const provider = new ethers.BrowserProvider(window.ethereum);
+  //   await provider.send("eth_requestAccounts", []);
+  //   const signer = await provider.getSigner();
+  //   const address = await signer.getAddress();
+
+  //   return address;
+  // } catch (error) {
+  //   console.error("Wallet connection failed:", error);
+  //   return null;
+  // }
+// }
+
+const Page = () => {
   return (
-    <button
-      onClick={handleClick}
-      className="px-4 py-2 bg-green-600 text-white rounded-md"
-    >
-      Init Plans{" "}
-    </button>
+    <div>
+      <Button
+        onClick={() => {
+          // connectWallet();
+        }}
+      >
+        Connect wallet
+      </Button>
+    </div>
   );
-}
+};
+
+export default Page;
