@@ -37,8 +37,10 @@ const StartChatButton = ({
       characterId,
     });
 
+    //@ts-ignore
     if (response.chatId) {
       // this will open new created or previous chat and close the modal also
+      //@ts-ignore
       handleOpenChat({ chatId: response.chatId, refresh: true });
     }
   };
