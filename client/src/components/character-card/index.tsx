@@ -70,13 +70,14 @@ export function CharacterCard(props: Props) {
       const response: any = await getOrCreateChatWithCharacter.mutateAsync({
         characterId: characterId,
       });
-
-      if (response?.chatId) {
-        // this will open new created or previous chat and close the modal also
-        handleOpenChat({ chatId: response?.chatId, refresh: true });
+      if (response) {
+        if (response?.chatId) {
+          // this will open new created or previous chat and close the modal also
+          handleOpenChat({ chatId: response?.chatId, refresh: true });
+        }
+      } else {
+        router.push(`/character/${characterId}`);
       }
-    } else {
-      router.push(`/character/${characterId}`);
     }
   };
 

@@ -247,6 +247,7 @@ export const getOrCreateChatWithCharacterAction = async ({
       return {
         success: false,
         error: { code: "CHARACTER_NOT_FOUND", message: "Character not found" },
+        chatId: null,
       };
     }
 
@@ -275,6 +276,7 @@ export const getOrCreateChatWithCharacterAction = async ({
       } else if (existingGuestChat) {
         return {
           success: false,
+          chatId: null,
           error: {
             code: "LOGIN_REQUIRED",
             message: "You can only chat with one character without logging in.",
@@ -375,6 +377,7 @@ export const getOrCreateChatWithCharacterAction = async ({
     return {
       success: false,
       error: { message: handleErrorResponse(error).message },
+      chatId: null
     };
   }
 };
