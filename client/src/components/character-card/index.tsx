@@ -67,7 +67,7 @@ export function CharacterCard(props: Props) {
 
   const handleOpenCharacter = async (characterId: any) => {
     if (props.directStart) {
-      const response = await getOrCreateChatWithCharacter.mutateAsync({
+      const response: any = await getOrCreateChatWithCharacter.mutateAsync({
         characterId: characterId,
       });
 
