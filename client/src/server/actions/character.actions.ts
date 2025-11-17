@@ -827,6 +827,21 @@ export const getCharacterDetailAction = async ({
   return characterDoc;
 };
 
-export const getCharactersForSell = async () => {
-  
+export const getNftCharactersForSell = async () => { 
+  const characters = await prisma.character.findMany({
+    where: {
+      // isListedForSale: true,
+    },
+    include: {
+      creator: {
+        select: { id: true, name: true, username: true },
+      },
+      _count: {
+        select: { messages: true },
+      },
+    },
+    take: 15,
+  });
+
+  return { characters };
 };

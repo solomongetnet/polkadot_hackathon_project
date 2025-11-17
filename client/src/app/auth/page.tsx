@@ -64,7 +64,7 @@ export default function HomePage() {
     <div className="h-[100dvh] grid place-content-center">
       {/* Header */}
       <header className="z-30 fixed top-0 right-0 left-0 flex items-center justify-between p-4 lg:p-6">
-        <BrandName className="text-lg md:text-xl font-medium" />
+        <BrandName className="text-lg md:text-2xl font-medium" />
 
         <div className="flex items-center gap-4">
           <Button
@@ -221,7 +221,7 @@ export default function HomePage() {
         {/* Only show the GIF when it's loaded to prevent flickering */}
         <motion.img
           src={currentGif || "/placeholder.svg"}
-          className="aspect-video h-[100dvh] max-md:-[100w] md:h-[80dvh] md:rounded-3xl object-cover"
+          className="aspect-video h-[100dvh] max-md:-[100w] md:h-[80dvh] md:rounded-3xl object-cover border-primary border-4 shadow-primary"
           alt="Anime cover"
           style={{
             opacity: isImageLoaded ? 1 : 0,

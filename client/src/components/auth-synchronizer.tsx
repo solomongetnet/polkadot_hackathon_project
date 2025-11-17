@@ -22,6 +22,7 @@ export function AuthSynchronizer() {
           name: session?.user?.name,
           username: session?.user?.username!,
           plan: (session?.user.plan as any)?.toLowerCase() || "free",
+          walletAddress: session?.user.walletAddress,
         },
         status: "success",
       });

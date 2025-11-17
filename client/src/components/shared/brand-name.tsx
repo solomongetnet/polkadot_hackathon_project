@@ -23,7 +23,7 @@ export const BrandName: React.FC<BrandNameProps> = ({
     <div
       className={clsx(
         sizeMap[size],
-        "font-semibold tracking-normal",
+        "font-semibold tracking-normal text-lg md:text-",
         className
       )}
     >

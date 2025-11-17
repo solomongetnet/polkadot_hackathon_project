@@ -1,5 +1,5 @@
 // lib/auth-client.ts
-import { createAuthClient } from "better-auth/client";
+import { createAuthClient } from "better-auth/react";
 import {
   inferAdditionalFields,
   customSessionClient,
@@ -13,14 +13,14 @@ export const authClient = createAuthClient({
     async onSuccess(context) {
       const user = context?.data ?? null;
 
-      // Update Zustand store with user info and status
-      useAuthStore.setState({
-        currentUser: {
-          user,
-          status: "success",
-          error: undefined,
-        },
-      });
+      // // Update Zustand store with user info and status
+      // useAuthStore.setState({
+      //   currentUser: {
+      //     user,
+      //     status: "success",
+      //     error: undefined,
+      //   },
+      // });
     },
   },
   plugins: [

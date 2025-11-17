@@ -17,6 +17,7 @@ import Link from "next/link";
 import SettingsModal from "../setting-modal";
 import { Avatar } from "../shared/avatar";
 import { useModalStore } from "@/store/ui-store";
+import ConnectWallet from "../connect-wallet";
 
 const SidebarFooterContainer = () => {
   const [isSettingsModalOpen, setIsSettingModalOpen] = useState(false);
@@ -33,7 +34,7 @@ const SidebarFooterContainer = () => {
   const handleOpenUpgradeModal = () => {
     setUpgradeModalOpen(true);
   };
-  
+
   return (
     <>
       <SidebarFooter className="border-t-2">
@@ -49,6 +50,8 @@ const SidebarFooterContainer = () => {
                 <span>Upgrade to plus</span>
               </Button>
             )}
+
+            <ConnectWallet connectedWalletAddress={data.user.walletAddress} />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <SidebarMenuButton className="py-5 cursor-pointer flex justify-between items-center">

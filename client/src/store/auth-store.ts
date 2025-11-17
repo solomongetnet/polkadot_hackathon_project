@@ -1,4 +1,5 @@
 // store/auth-store.ts
+"use client";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { decryptData, encryptData } from "@/utils/crypto";
@@ -8,6 +9,7 @@ export interface User {
   name: string;
   email: string;
   plan: "free" | "plus";
+  walletAddress: string | null;
 }
 
 type Status = "loading" | "error" | "success";
@@ -70,7 +72,7 @@ export const useAuthStore = create<UserState>()(
       name: "auth-store",
       storage: {
         getItem: (name) => {
-          const raw = localStorage.getItem(name);
+          const raw = window.localStorage.getItem(name);
           if (!raw) return null;
           try {
             return decryptData(raw);
@@ -79,9 +81,9 @@ export const useAuthStore = create<UserState>()(
           }
         },
         setItem: (name, value) => {
-          localStorage.setItem(name, encryptData(value));
+          window.localStorage.setItem(name, encryptData(value));
         },
-        removeItem: (name) => localStorage.removeItem(name),
+        removeItem: (name) => window.localStorage.removeItem(name),
       },
     }
   )

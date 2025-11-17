@@ -11,6 +11,7 @@ import {
   getSimilarCharactersAction,
   getCharacterDetailAction,
   getCharactersAction,
+  getNftCharactersForSell,
 } from "@/server/actions/character.actions";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -174,6 +175,13 @@ export const useGetCharacterDetailQuery = ({
     queryKey: ["character_detail", characterId],
     queryFn: () => getCharacterDetailAction({ characterId }),
     enabled: enabled,
+  });
+};
+
+export const useGetCharactersForSellQuery = () => {
+  return useQuery({
+    queryKey: ["characters_for_sell"],
+    queryFn: () => getNftCharactersForSell(),
   });
 };
 

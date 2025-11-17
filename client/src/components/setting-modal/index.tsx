@@ -3,13 +3,11 @@
 import { Dispatch, SetStateAction, useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
   X,
   SettingsIcon,
   Bell,
   UserCircle,
-  Menu,
   Crown,
   Shield,
   ArrowLeft,
