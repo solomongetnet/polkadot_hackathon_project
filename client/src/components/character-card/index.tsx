@@ -65,12 +65,15 @@ export function CharacterCard(props: Props) {
     useGetOrCreateChatWithCharacterMutation();
   const { handleOpenChat } = useChatHelpers();
 
+
   const handleOpenCharacter = async (characterId: any) => {
     if (props.directStart) {
       const response: any = await getOrCreateChatWithCharacter.mutateAsync({
         characterId: characterId,
       });
       if (response) {
+
+        // new
         if (response?.chatId) {
           // this will open new created or previous chat and close the modal also
           handleOpenChat({ chatId: response?.chatId, refresh: true });
