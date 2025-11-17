@@ -20,6 +20,7 @@ export async function POST(req: Request) {
     const response = await polly.send(command);
 
     const arrayBuffer = await response.AudioStream?.transformToByteArray();
+    // @ts-ignore
     const audioBuffer = Buffer.from(arrayBuffer);
 
     return new NextResponse(audioBuffer, {
