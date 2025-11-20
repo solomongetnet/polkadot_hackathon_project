@@ -122,7 +122,7 @@ export const auth = betterAuth({
           role: userDoc?.role,
           username: userDoc?.username,
           plan: currentActiveUserPlan?.plan.name || "Free",
-          walletAddress: userDoc?.walletAddress || null
+          walletAddress: userDoc?.walletAddress || null,
         },
         session,
       };
@@ -138,4 +138,5 @@ export const auth = betterAuth({
       },
     },
   },
+  secret: "jdksjkf390fdsiofjkdfskcmsdnfm",
 });
