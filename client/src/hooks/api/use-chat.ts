@@ -64,7 +64,7 @@ export const useDeleteChatMutation = () => {
     mutationFn: (chatId: string) => deleteChatAction(chatId),
     onSuccess: ({ success, error, message }) => {
       queryClient.invalidateQueries({ queryKey: ["chats"] });
-      if (success) {
+      if (success && message) {
         toast.message(message);
       } else {
         toast.error(error?.message);
@@ -79,7 +79,7 @@ export const useTogglePinChatMutation = () => {
     mutationFn: ({ chatId }: { chatId: string }) =>
       togglePinChatAction({ chatId }),
     onSuccess: ({ success, error, message }) => {
-      if (success) {
+      if (success && message) {
         queryClient.invalidateQueries({ queryKey: ["chats"] });
         toast.message(message);
       } else {
@@ -99,7 +99,7 @@ export const useCustomizeChatThemeMutation = () => {
       themeId: string;
     }) => customizeChatThemeAction(input),
     onSuccess: ({ success, error, message }, { chatId }) => {
-      if (success) {
+      if (success && message) {
         queryClient.invalidateQueries({ queryKey: [`chat${chatId}`] });
         toast.message(message);
       } else {
@@ -121,7 +121,7 @@ export const useClearChatHistoryMutation = () => {
   return useMutation({
     mutationFn: (input: { chatId: string }) => clearChatHistoryAction(input),
     onSuccess: ({ success, error, message }, { chatId }) => {
-      if (success) {
+      if (success && message) {
         queryClient.invalidateQueries({ queryKey: [`chat${chatId}`] });
         toast.message(message);
       } else {

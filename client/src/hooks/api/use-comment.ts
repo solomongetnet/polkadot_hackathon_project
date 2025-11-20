@@ -31,7 +31,7 @@ export const useCreateCharacterCommentMutation = () => {
     mutationFn: (input: { content: string; characterId: string }) =>
       createCharacterCommentAction(input),
     onSuccess: ({ success, error, message }, { characterId }) => {
-      if (success) {
+      if (success && message) {
         queryClient.invalidateQueries({
           queryKey: ["comments", characterId],
         });
@@ -83,7 +83,7 @@ export const useToggleCharacterCommentLikeMutation = () => {
         queryKey: ["comments", characterId],
       });
 
-      if (success) {
+      if (success && message) {
         toast.message(message);
       } else if (error?.code) {
         errorToast.showErrorToast({

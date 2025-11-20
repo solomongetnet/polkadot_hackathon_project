@@ -13,7 +13,7 @@ export const useSubmitCharacterReportMutation = () => {
       characterId: string;
     }) => submitCharacterReportAction(data),
     onSuccess: ({ success, error, message }) => {
-      if (success) {
+      if (success && message) {
         toast.message(message);
       } else {
         if (error?.code) {

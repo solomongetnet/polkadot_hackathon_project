@@ -128,8 +128,8 @@ export const useCreateCharacterMutation = () => {
 
   return useMutation({
     mutationFn: (data: CreateCharacterInput) => createCharacterAction(data),
-    onSuccess: ({ success, error, message }) => {
-      if (success) {
+    onSuccess: ({ success, error, message }: any) => {
+      if (success && message) {
         toast.success(message);
       } else {
         // if (error?.code === "LOGIN_REQUIRED") {
@@ -195,7 +195,7 @@ export const useUpdateCharacterMutation = () => {
       characterId: string;
     }) => updateCharacterAction({ data, characterId }),
     onSuccess: ({ success, error, message }) => {
-      if (success) {
+      if (success && message) {
         toast.message(message);
       } else {
         toast.message(error?.message);
@@ -241,7 +241,7 @@ export const useUpdateCharacterVisibilityMutation = () => {
       visibility: "PUBLIC" | "PRIVATE";
     }) => updateCharacterVisibilityAction({ characterId, visibility }),
     onSuccess: ({ success, error, message }) => {
-      if (success) {
+      if (success && message) {
         queryClient.invalidateQueries({
           queryKey: ["user_characters"],
           type: "all",
@@ -328,7 +328,7 @@ export const useDeleteCharacterForAdminMutation = () => {
     mutationFn: ({ characterId }: { characterId: string }) =>
       deleteCharacterForAdminAction({ characterId }),
     onSuccess: ({ success, error, message }) => {
-      if (success) {
+      if (success && message) {
         queryClient.invalidateQueries({
           queryKey: ["characters"],
           type: "all",

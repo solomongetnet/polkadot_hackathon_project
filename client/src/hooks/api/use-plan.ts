@@ -18,7 +18,7 @@ export const useInitPlansMutation = () => {
   return useMutation({
     mutationFn: () => initPlansAction(),
     onSuccess: ({ success, error, message }) => {
-      if (success) {
+      if (success && message) {
         toast.message(message);
         queryClient.invalidateQueries({ queryKey: ["plans"] });
       } else {
@@ -88,7 +88,7 @@ export const useExpireOverdueUserPlansMutation = () => {
   return useMutation({
     mutationFn: () => expireOverdueUserPlansForAdminAction(),
     onSuccess: ({ success, message, error }) => {
-      if (success) {
+      if (success && message) {
         toast.success(message || "Expired overdue user plans successfully");
         queryClient.invalidateQueries({ queryKey: ["plans"] });
       } else {

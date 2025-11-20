@@ -16,7 +16,7 @@ export const useUpdateUserMutation = () => {
       profileImage: File | Blob | null;
     }) => updateUserAction(data),
     onSuccess: ({ success, error, message }) => {
-      if (success) {
+      if (success && message) {
         queryClient.invalidateQueries({ queryKey: ["user_data_for_update"] });
         toast.message(message);
       } else {

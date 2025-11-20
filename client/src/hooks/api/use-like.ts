@@ -51,7 +51,7 @@ export const useToggleCharacterLikeMutation = () => {
         queryKey: ["character_detail", characterId],
       });
 
-      if (success) {
+      if (success && message) {
         toast.message(message);
       } else if (error?.code) {
         errorToast.showErrorToast({

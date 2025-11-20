@@ -18,7 +18,7 @@ export const useRemoveFollowerMutation = () => {
     mutationFn: ({ userIdToRemove }: { userIdToRemove: string }) =>
       removeFollowerAction(userIdToRemove),
     onSuccess: ({ success, error, message }) => {
-      if (success) {
+      if (success && message) {
         queryClient.invalidateQueries({
           queryKey: ["my_following"],
         });
@@ -42,7 +42,7 @@ export const useToggleFollowMutation = () => {
     mutationFn: ({ targetUserId }: { targetUserId: string }) =>
       toggleFollowAction(targetUserId),
     onSuccess: ({ success, error, message }) => {
-      if (success) {
+      if (success && message) {
         queryClient.invalidateQueries({
           queryKey: ["my_following"],
           type: "all",

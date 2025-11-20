@@ -27,7 +27,7 @@ export const useCreateNewFolderMutation = () => {
     }) => createNewFolder({ chatIds, theme, title }),
     onSuccess: ({ success, error, message }) => {
       queryClient.invalidateQueries({ queryKey: ["folders"] });
-      if (success) {
+      if (success && message) {
         toast.message(message);
       } else {
         toast.error(error?.message);
@@ -42,7 +42,7 @@ export const useDeleteFolderMutation = () => {
     mutationFn: (folderId: string) => deleteFolder({ folderId }),
     onSuccess: ({ success, error, message }) => {
       queryClient.invalidateQueries({ queryKey: ["folders"] });
-      if (success) {
+      if (success && message)  {
         toast.message(message);
       } else {
         toast.error(error?.message);

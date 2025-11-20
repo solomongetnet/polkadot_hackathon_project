@@ -170,7 +170,6 @@ export const createCharacterAction = async (data: NewCharacterInput) => {
         code: "LOGIN_REQUIRED",
         message: "Please sign in to create a character.",
       },
-      message: null,
     };
   }
 
@@ -225,7 +224,6 @@ export const createCharacterAction = async (data: NewCharacterInput) => {
           handleErrorResponse(error).message ||
           "Failed to create new character.",
       },
-      message: null,
     };
   }
 };
