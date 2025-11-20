@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import LoginView from "./login-view";
 import SignupView from "./signup-view";
 import { BrandName } from "@/components/shared/brand-name";
 import { authClient } from "@/lib/auth-client";
+import AnimatedGif from "./animated-gif";
 
 const gifCovers = [
   "https://media1.giphy.com/media/WZuGWpHtzHBoA/source.gif",
@@ -21,7 +22,8 @@ const gifCovers = [
 
 export default function HomePage() {
   const [isImageLoaded, setIsImageLoaded] = useState(false);
-
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const containerRef = useRef<HTMLDivElement>(null);
   /* ---------- pick random GIF *before* first paint ---------- */
   const [currentGif] = useState(() => {
     // Generate random index
@@ -52,6 +54,32 @@ export default function HomePage() {
   const [isLogin, setIsLogin] = useState(false);
   const [showEmailForm, setShowEmailForm] = useState(false);
 
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!containerRef.current) return;
+
+      const rect = containerRef.current.getBoundingClientRect();
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+
+      const mouseX = e.clientX - rect.left;
+      const mouseY = e.clientY - rect.top;
+
+      // Calculate distance from center (-1 to 1 range)
+      const distX = (mouseX - centerX) / centerX;
+      const distY = (mouseY - centerY) / centerY;
+
+      // Clamp values and apply smooth movement (max 15px offset)
+      const offsetX = Math.max(-15, Math.min(15, distX * 15));
+      const offsetY = Math.max(-15, Math.min(15, distY * 15));
+
+      setMousePosition({ x: offsetX, y: offsetY });
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, []);
+
   const handleGoogleLogin = async () => {
     // Mock Google login
     await authClient.signIn.social({
@@ -61,7 +89,10 @@ export default function HomePage() {
   };
 
   return (
-    <div className="h-[100dvh] grid place-content-center">
+    <div
+      className="h-[100dvh] grid place-content-center outline-hidden"
+      ref={containerRef}
+    >
       {/* Header */}
       <header className="z-30 fixed top-0 right-0 left-0 flex items-center justify-between p-4 lg:p-6">
         <BrandName className="text-lg md:text-2xl font-medium" />
@@ -93,7 +124,7 @@ export default function HomePage() {
       </header>
 
       <motion.div
-        className="max-sm:mt-24 p-10 z-20 w-[100vw] sm:w-[400px] h-fit  rounded-3xl bg-accent  md:absolute mt-[14%] md:left-[100px]"
+        className="max-sm:mt-24 p-10 z-20 w-[100vw] sm:w-[400px] h-fit  md:rounded-3xl bg-accent  md:absolute mt-[14%] md:left-[100px]"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
@@ -198,8 +229,8 @@ export default function HomePage() {
         )}
       </motion.div>
 
-      <motion.div
-        className="w-[100vw] h-[100dvh] flex justify-end items-end md:px-15 md:py-15 max-md:absolute max-md:inset-0 "
+      {/* <motion.div
+        className="w-[100vw] h-[100dvh] flex justify-end items-end md:px-15 md:py-15 max-md:absolute max-md:inset-0 outline-hidden"
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{
           opacity: isImageLoaded ? 1 : 0,
@@ -218,15 +249,29 @@ export default function HomePage() {
           },
         }}
       >
+        <AnimatedGif currentGif={currentGif} />
+      </motion.div> */}
+
+      <motion.div
+        animate={{ x: mousePosition.x, y: mousePosition.y }}
+        transition={{
+          type: "spring",
+          stiffness: 150,
+          damping: 20,
+          mass: 1,
+        }}
+        className="relative flex justify-end min-w-full max-w-full w-[100vw] md:pr-24 max-md:hidden overflow-hidden"
+      >
         {/* Only show the GIF when it's loaded to prevent flickering */}
         <motion.img
           src={currentGif || "/placeholder.svg"}
-          className="aspect-video h-[100dvh] max-md:-[100w] md:h-[80dvh] md:rounded-3xl object-cover border-primary border-4 shadow-primary"
+          className="aspect-video h-[100dvh] max-md:w-[100vw] md:h-[80dvh] md:rounded-3xl object-cover border-primary border-4 shadow-primary "
           alt="Anime cover"
           style={{
             opacity: isImageLoaded ? 1 : 0,
             transition: "opacity 0.3s ease-in-out",
           }}
+          onLoad={() => setIsImageLoaded(true)}
           // Additional subtle bounce for the image itself on large screens
           animate={{
             y:
@@ -238,7 +283,7 @@ export default function HomePage() {
             duration: 4,
             repeat: Number.POSITIVE_INFINITY,
             ease: "easeInOut",
-            delay: 1.5, // Offset from container bounce
+            delay: 1.5,
           }}
         />
       </motion.div>

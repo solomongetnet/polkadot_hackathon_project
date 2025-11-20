@@ -8,7 +8,7 @@ import Link from "next/link";
 import React from "react";
 import CategoryDropdown from "./category-dropdown";
 
-const CharactersHeader = () => {
+const CharactersHeader = ({ title }: { title?: string }) => {
   const { isMobile, setOpenMobile, open, setOpen } = useSidebar();
   const { data: sessionData, isPending } = authClient.useSession();
 
@@ -22,21 +22,15 @@ const CharactersHeader = () => {
               <Text />
             </span>
 
-            <CategoryDropdown />
+            {title ? (
+              <h2 className="font-md text-xl">{title}</h2>
+            ) : (
+              <CategoryDropdown />
+            )}
           </div>
 
           {isPending || !sessionData?.session ? (
             <div className="flex items-center gap-4 absolute right-4">
-              {/* <Link href={"/auth"} prefetch>
-                <Button
-                  variant="default"
-                  size="sm"
-                  className="rounded-full px-4"
-                >
-                  Sign Up to Chat
-                </Button>
-              </Link> */}
-
               <Link href={"/auth"} prefetch>
                 <Button size="sm" className="transition-colors rounded-full">
                   Login / Signup
@@ -65,7 +59,11 @@ const CharactersHeader = () => {
         )}
 
         <div className={`flex gap-2 items-center ${!open && "pl-10"}`}>
-          <CategoryDropdown />
+          {title ? (
+            <h2 className="font-md text-xl">{title}</h2>
+          ) : (
+            <CategoryDropdown />
+          )}
         </div>
         <div className="flex gap-2 items-center">
           <Button className="rounded-full h-[40px] aspect-square p-0 ">

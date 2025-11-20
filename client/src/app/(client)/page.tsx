@@ -3,6 +3,7 @@ import CharactersHeader from "./explore/header";
 import RandomCharacterContainer from "./explore/random-character-container";
 import CharactersFooter from "./explore/footer";
 import CharactersContainer from "./explore/characters-container";
+import NftsContainer from "./explore/nfts-container";
 
 const HomePage = async ({ searchParams }: { searchParams: any }) => {
   const categorySearchParam = await searchParams.category;
@@ -16,6 +17,7 @@ const HomePage = async ({ searchParams }: { searchParams: any }) => {
       <div className="max-md:pt-12">
         <RandomCharacterContainer />
         <CharactersContainer />
+        <NftsContainer/>
         <CharactersFooter />
       </div>
     </div>

@@ -208,25 +208,24 @@ model Chat {
 
 model Character {
   id   String @id @default(cuid())
-  name String // Character's display name
+  name String
 
-  avatarUrl     String? // Optional image/avatar
+  avatarUrl     String?
   backgroundUrl String?
-  themeId       String? // those themes are static from the constant file
+  themeId       String?
 
-  description String              @db.Text // Brief bio or introduction
-  tagline     String // Add a short tagline of your Character
-  personality String              @db.Text // Personality description (e.g., "cheerful, logical, sarcastic")
-  prompt      String              @db.Text // System prompt to define character's behavior
-  voiceStyle  String? // Optional voice tone (e.g., "friendly", "robotic", "formal")
+  description String              @db.Text
+  tagline     String
+  personality String              @db.Text
+  prompt      String              @db.Text
+  voiceStyle  String?
   visibility  CharacterVisibility @default(PUBLIC)
 
   creatorId String
   creator   User   @relation(fields: [creatorId], references: [id], onDelete: Cascade)
 
-  chats Chat[] // 👈 One-to-many relationship with Chat
-  likes CharacterLike[]
-
+  chats    Chat[]
+  likes    CharacterLike[]
   messages Message[]
 
   tags String?
@@ -235,17 +234,50 @@ model Character {
   reports       CharacterReport[]
   notifications Notification[]
 
-  // NFT integration fields
-  nftTokenId      String? // ID of NFT token on-chain
-  nftContract     String? // Contract address
-  nftNetwork      String? // Blockchain network, e.g., "Polkadot" or "Moonbeam"
-  isListedForSale Boolean @default(false) // Whether the NFT is up for sale
-  price           Float? // Sale price in native token (e.g., DOT, ETH)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // 1:1 relation with NFT model
+  nft   CharacterNft? @relation(fields: [nftId], references: [id])
+  nftId String?       @unique
+}
+
+model CharacterNft {
+  id String @id @default(cuid())
+
+  // Back relation
+  character Character?
+
+  tokenId         String? // On-chain token ID
+  contractAddress String? // NFT contract address
+  chain           String? // Moonbeam, Moonbase, etc.
+
+  // Metadata
+  metaData           String? // JSON metadata as string
+  metadataOnChainUrl String? // IPFS metadata URL
+  isMinted           Boolean @default(false)
+
+  // Sale info
+  isForSale Boolean @default(false)
+  price     Float?
+  currency  String? // "DEV", "GLMR", "DOT", etc.
+
+  // Ownership
+  ownerWallet String? // EVM wallet address
+
+  // Visual / style
+  coverImageUrl String? // Hero/cover image for NFT card
+  style         String? // e.g., "futuristic", "fantasy", "cartoon"
+  rarity        String? // e.g., "common", "rare", "legendary"
+  isAnimated    Boolean @default(false) // NFT has animations or interactivity
+  hasSound      Boolean @default(false) // NFT has sound or voice
+
+  // Optional description for NFT card
+  description String? @db.Text
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
-
 
 // model CharacterBlockchain {
 //   id String @id @default(cuid())

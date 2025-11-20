@@ -154,7 +154,7 @@ export const getCharactersAction = async ({
   });
 
   return {
-    data: shuffled,
+    data: [...shuffled, ...shuffled, ...shuffled, ...shuffled],
     hasMore: totalUnseen > shuffled.length,
   };
 };
@@ -170,6 +170,7 @@ export const createCharacterAction = async (data: NewCharacterInput) => {
         code: "LOGIN_REQUIRED",
         message: "Please sign in to create a character.",
       },
+      message: null,
     };
   }
 
@@ -224,6 +225,7 @@ export const createCharacterAction = async (data: NewCharacterInput) => {
           handleErrorResponse(error).message ||
           "Failed to create new character.",
       },
+      message: null,
     };
   }
 };
@@ -827,7 +829,7 @@ export const getCharacterDetailAction = async ({
   return characterDoc;
 };
 
-export const getNftCharactersForSell = async () => { 
+export const getNftCharactersForSell = async () => {
   const characters = await prisma.character.findMany({
     where: {
       // isListedForSale: true,
