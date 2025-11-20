@@ -122,7 +122,7 @@ export const auth = betterAuth({
           role: userDoc?.role,
           username: userDoc?.username,
           plan: currentActiveUserPlan?.plan.name || "Free",
-          walletAddress: userDoc.walletAddress
+          walletAddress: userDoc?.walletAddress || null
         },
         session,
       };
