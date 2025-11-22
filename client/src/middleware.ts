@@ -1,17 +1,14 @@
 "use server";
 
 import { NextRequest, NextResponse } from "next/server";
-import { headers } from "next/headers";
-import { authClient } from "./lib/auth-client";
-import { auth } from "./lib/auth";
 
 export async function middleware(request: NextRequest) {
-  const res = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const sessionTokenCookie = request.cookies.get("better-auth.session_token");
+
+  console.log({ cookies: sessionTokenCookie?.value });
 
   const url = request.nextUrl.clone();
-  const isAuthenticated = !!res?.user;
+  const isAuthenticated = !!sessionTokenCookie?.value;
 
   if (!isAuthenticated && !url.pathname.includes("auth")) {
     url.pathname = "/auth";
@@ -28,5 +25,5 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"], // Apply middleware to all routes except API and static files
-  runtime: "nodejs",
+  // runtime: "nodejs",
 };
