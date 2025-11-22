@@ -180,14 +180,14 @@ export const createCharacterAction = async (data: NewCharacterInput) => {
       },
     });
 
-    const limitCheck = await enforceLimit({
-      currentCount: userCharactersCount,
-      type: "createdCharacters",
-    });
+    // const limitCheck = await enforceLimit({
+    //   currentCount: userCharactersCount,
+    //   type: "createdCharacters",
+    // });
 
-    if (limitCheck.success === false) {
-      return limitCheck;
-    }
+    // if (limitCheck.success === false) {
+    //   return limitCheck;
+    // }
 
     const validatedData = await newCharacterSchema.validate(data);
 

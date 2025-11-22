@@ -132,6 +132,7 @@ export const useCreateCharacterMutation = () => {
       if (success && message) {
         toast.success(message);
       } else {
+        
         // if (error?.code === "LOGIN_REQUIRED") {
         //   showErrorToast({
         //     code: error?.code as any,
