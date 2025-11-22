@@ -3,15 +3,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { headers } from "next/headers";
 import { authClient } from "./lib/auth-client";
+import { auth } from "./lib/auth";
 
 export async function middleware(request: NextRequest) {
-  const { data } = await authClient.getSession({
-    fetchOptions: { headers: await headers() },
+  const res = await auth.api.getSession({
+    headers: await headers(),
   });
-  const url = request.nextUrl.clone();
-  const isAuthenticated = !!data;
 
-  console.log({ data });
+  const url = request.nextUrl.clone();
+  const isAuthenticated = !!res?.user;
 
   if (!isAuthenticated && !url.pathname.includes("auth")) {
     url.pathname = "/auth";
