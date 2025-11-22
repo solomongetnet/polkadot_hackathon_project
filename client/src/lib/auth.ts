@@ -27,15 +27,20 @@ export const auth = betterAuth({
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     },
   },
+  // session: {
+  //   storeSessionInDatabase: true,
+  //   cookieCache: {
+  //     enabled: false,
+  //   },
+  //   preserveSessionInDatabase: true,
+  // },
   session: {
-    storeSessionInDatabase: true,
-    cookieCache: { enabled: false },
-    preserveSessionInDatabase: true,
-    cookie: {
-      domain:
-        process.env.NODE_ENV === "production" ? ".vercel.app" : "localhost",
+    cookieCache: {
+      enabled: true,
+      maxAge: 5 * 60, // 5 minutes, or whatever
     },
   },
+  // plug
   databaseHooks: {
     user: {
       create: {

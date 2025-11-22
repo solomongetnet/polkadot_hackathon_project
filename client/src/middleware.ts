@@ -9,18 +9,18 @@ export async function middleware(request: NextRequest) {
 
   // console.log({ cookies: sessionTokenCookie?.value });
 
-  const url = request.nextUrl.clone();
-  const isAuthenticated = !!sessionTokenCookie
+  // const url = request.nextUrl.clone();
+  // const isAuthenticated = !!sessionTokenCookie
 
-  if (!isAuthenticated && !url.pathname.includes("auth")) {
-    url.pathname = "/auth";
-    return NextResponse.redirect(url);
-  }
+  // if (!isAuthenticated && !url.pathname.includes("auth")) {
+  //   url.pathname = "/auth";
+  //   return NextResponse.redirect(url);
+  // }
 
-  if (isAuthenticated && url.pathname.includes("auth")) {
-    url.pathname = "/";
-    return NextResponse.redirect(url);
-  }
+  // if (isAuthenticated && url.pathname.includes("auth")) {
+  //   url.pathname = "/";
+  //   return NextResponse.redirect(url);
+  // }
 
   return NextResponse.next();
 }
