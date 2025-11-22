@@ -1,0 +1,56 @@
+"use client";
+
+import React, { useState } from "react";
+import AboutModal from "./about-modal";
+import { tree } from "next/dist/build/templates/app-page";
+import FaqModal from "./faq-modal";
+import ContactModal from "./contact-modal";
+
+const Footer = () => {
+  const [aboutModal, setAboutModal] = useState(false);
+  const [faqModal, setFaqModal] = useState(false);
+  const [contactModal, setContactModal] = useState(false);
+
+  return (
+    <>
+      <div className="pt-6 pb-10 w-full flex justify-center items-center">
+        <div className="flex gap-4 md:gap-8 items-center ">
+          <span
+            className="text-muted-foreground hover:text-primary cursor-pointer"
+            onClick={() => {
+              setAboutModal(true);
+            }}
+          >
+            About
+          </span>
+          <span
+            className="text-muted-foreground hover:text-primary cursor-pointer"
+            onClick={() => {
+              setFaqModal(true);
+            }}
+          >
+            {" "}
+            Faq
+          </span>
+
+          <span
+            className="text-muted-foreground hover:text-primary cursor-pointer"
+            onClick={() => {
+              setContactModal(true);
+            }}
+          >
+            {" "}
+            Contact us
+          </span>
+        </div>
+      </div>
+
+      {/* modals */}
+      <AboutModal open={aboutModal} setIsOpen={setAboutModal} />
+      <FaqModal open={faqModal} setIsOpen={setFaqModal} />
+      <ContactModal open={contactModal} setIsOpen={setContactModal} />
+    </>
+  );
+};
+
+export default Footer;

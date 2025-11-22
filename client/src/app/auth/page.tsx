@@ -7,9 +7,9 @@ import LoginView from "./login-view";
 import SignupView from "./signup-view";
 import { BrandName } from "@/components/shared/brand-name";
 import { authClient } from "@/lib/auth-client";
-import AnimatedGif from "./animated-gif";
 
 const gifCovers = [
+  "https://giffiles.alphacoders.com/132/13267.gif",
   "https://media1.giphy.com/media/WZuGWpHtzHBoA/source.gif",
   "https://64.media.tumblr.com/8b0a8c34abfe5a99c3ebfa6f2e3535a2/1c0b164aa9a2f645-ef/s500x750/62b280e55c00ccddb527754f6ec71d5eb5fb8beb.gifv",
   "https://i.redd.it/g60gx41x1jaf1.gif",
@@ -265,7 +265,7 @@ export default function HomePage() {
         {/* Only show the GIF when it's loaded to prevent flickering */}
         <motion.img
           src={currentGif || "/placeholder.svg"}
-          className="aspect-video h-[100dvh] max-md:w-[100vw] md:h-[80dvh] md:rounded-3xl object-cover border-primary border-4 shadow-primary "
+          className="aspect-video h-[100dvh] max-md:w-[100vw] md:h-[80dvh] md:rounded-3xl object-cover  shadow-primary "
           alt="Anime cover"
           style={{
             opacity: isImageLoaded ? 1 : 0,
