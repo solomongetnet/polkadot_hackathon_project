@@ -1,14 +1,16 @@
 "use server";
 
 import { NextRequest, NextResponse } from "next/server";
+import { serverSession } from "./lib/auth-server";
 
 export async function middleware(request: NextRequest) {
-  const sessionTokenCookie = request.cookies.get("better-auth.session_token");
+  // const sessionTokenCookie = request.cookies.get("better-auth.session_token");
+  const session = await serverSession();
 
-  console.log({ cookies: sessionTokenCookie?.value });
+  // console.log({ cookies: sessionTokenCookie?.value });
 
   const url = request.nextUrl.clone();
-  const isAuthenticated = !!sessionTokenCookie?.value;
+  const isAuthenticated = !!session?.user;
 
   if (!isAuthenticated && !url.pathname.includes("auth")) {
     url.pathname = "/auth";
