@@ -27,8 +27,9 @@ export const useSignUpWithEmailMutation = () => {
       callbackURL,
     }: {
       data: { name: string; email: string; password: string };
-      callbackURL: string | null;
+      callbackURL?: string | null;
     }) => {
+      console.log("input-----", { data });
       return authClient.signUp.email(
         { callbackURL: callbackURL || "", ...data },
         {
@@ -36,6 +37,7 @@ export const useSignUpWithEmailMutation = () => {
             toast.message("Your account has been created successfully");
           },
           onError: ({ error }) => {
+            console.log("------------------------", { error });
             toast.error(error.message);
             throw new Error("");
           },

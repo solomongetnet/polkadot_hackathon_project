@@ -36,7 +36,7 @@ const SignupView = () => {
   const signUpMutation = useSignUpWithEmailMutation();
 
   const onSubmit = async (data: FormType) => {
-    await signUpMutation.mutateAsync(data as any);
+    await signUpMutation.mutateAsync({ data });
     router.push("/");
   };
 

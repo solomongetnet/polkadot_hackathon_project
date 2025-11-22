@@ -154,7 +154,7 @@ export const getCharactersAction = async ({
   });
 
   return {
-    data: [...shuffled, ...shuffled, ...shuffled, ...shuffled],
+    data: [...shuffled],
     hasMore: totalUnseen > shuffled.length,
   };
 };
