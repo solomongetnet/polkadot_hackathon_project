@@ -27,13 +27,15 @@ export const auth = betterAuth({
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     },
   },
-  // session: {
-  //   storeSessionInDatabase: true,
-  //   cookieCache: {
-  //     enabled: false,
-  //   },
-  //   preserveSessionInDatabase: true,
-  // },
+  session: {
+    storeSessionInDatabase: true,
+    cookieCache: { enabled: false },
+    preserveSessionInDatabase: true,
+    cookie: {
+      domain:
+        process.env.NODE_ENV === "production" ? ".vercel.app" : "localhost",
+    },
+  },
   databaseHooks: {
     user: {
       create: {
@@ -140,7 +142,6 @@ export const auth = betterAuth({
   },
   secret: "jdksjkf390fdsiofjkdfskcmsdnfm",
 });
-
 
 //  advanced: {
 //     ipAddress: {
