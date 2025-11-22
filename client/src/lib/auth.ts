@@ -16,6 +16,22 @@ export const auth = betterAuth({
       ipAddressHeaders: ["x-client-ip", "x-forwarded-for"],
       disableIpTracking: false,
     },
+    useSecureCookies: true,
+    cookies: {
+      session_token: {
+        attributes: {
+          sameSite: "none",
+          secure: true,
+        },
+      },
+    },
+  },
+  session: {
+    storeSessionInDatabase: true,
+    cookieCache: {
+      enabled: false,
+    },
+    preserveSessionInDatabase: true,
   },
   emailAndPassword: {
     enabled: true,
@@ -27,13 +43,13 @@ export const auth = betterAuth({
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     },
   },
-  session: {
-    storeSessionInDatabase: true,
-    cookieCache: {
-      enabled: false,
-    },
-    preserveSessionInDatabase: true,
-  },
+  // session: {
+  //   storeSessionInDatabase: true,
+  //   cookieCache: {
+  //     enabled: false,
+  //   },
+  //   preserveSessionInDatabase: true,
+  // },
   databaseHooks: {
     user: {
       create: {
