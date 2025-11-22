@@ -5,22 +5,22 @@ import { serverSession } from "./lib/auth-server";
 
 export async function middleware(request: NextRequest) {
   // const sessionTokenCookie = request.cookies.get("better-auth.session_token");
-  const session = await serverSession();
+  // const session = await serverSession();
 
-  // console.log({ cookies: sessionTokenCookie?.value });
+  // // console.log({ cookies: sessionTokenCookie?.value });
 
-  const url = request.nextUrl.clone();
-  const isAuthenticated = !!session?.user;
+  // const url = request.nextUrl.clone();
+  // const isAuthenticated = !!session?.user;
 
-  if (!isAuthenticated && !url.pathname.includes("auth")) {
-    url.pathname = "/auth";
-    return NextResponse.redirect(url);
-  }
+  // if (!isAuthenticated && !url.pathname.includes("auth")) {
+  //   url.pathname = "/auth";
+  //   return NextResponse.redirect(url);
+  // }
 
-  if (isAuthenticated && url.pathname.includes("auth")) {
-    url.pathname = "/";
-    return NextResponse.redirect(url);
-  }
+  // if (isAuthenticated && url.pathname.includes("auth")) {
+  //   url.pathname = "/";
+  //   return NextResponse.redirect(url);
+  // }
 
   return NextResponse.next();
 }
